@@ -17,8 +17,10 @@ struct tradeRec
 	string product;
 	string instrument;
 	string direction;
+	string mark_oc;
 	float price;
 	unsigned lots;
+	float fee;
 	float pnl;
 	float pnl_acc;
 };
