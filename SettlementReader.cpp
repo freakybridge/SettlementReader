@@ -1,20 +1,79 @@
-﻿// SettlementReader.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
-//
-
+﻿
+#include "SettlementReader.h"
+#include <io.h>
 #include <iostream>
+#include <fstream>
+#include <algorithm>
+using std::cerr;
+using std::cout;
+using std::endl;
+using std::ifstream;
+using std::istringstream;
 
-int main()
+SettlementReader::SettlementReader(int num, const char** varlist)
 {
-    std::cout << "Hello World!\n";
+	// 保存工作路径
+	switch (num)
+	{
+	case 2:
+		account = varlist[1];
+		break;
+	case 3:
+		account = varlist[1];
+		path_in = path_out = varlist[2];
+		break;
+	case 4:
+		account = varlist[1];
+		path_in = varlist[2];
+		path_out = varlist[3];
+		break;
+	default:
+		cerr << "Unexpected Input Argument, Please check !" << endl;
+		break;
+	}
+
+	// 读取目录中所有文件
+	// 初始化
+	long hFile = 0;
+	struct _finddata_t fileInfo;
+	string path_temp = path_in;
+
+	// 搜索第一个文件
+	if ((hFile = _findfirst(path_temp.append("\\*").c_str(), &fileInfo)) == -1)
+		return;
+
+	// 记录每个文件
+	do
+	{
+		if (!(fileInfo.attrib & _A_SUBDIR))
+		{
+			filelist.push_back(path_in + "\\" + fileInfo.name);
+		}
+		cout << fileInfo.name << (fileInfo.attrib & _A_SUBDIR ? "[folder]" : "[file]") << endl;
+	} while (_findnext(hFile, &fileInfo) == 0);
+	_findclose(hFile);
 }
 
-// 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
-// 调试程序: F5 或调试 >“开始调试”菜单
+void SettlementReader::read()
+{
+	
+	for (auto i : filelist)
+	{
+		ifstream this_file(i);
+		if (this_file)
+		{
+			string line;
+			while (getline(this_file, line))
+			{
+				cout << line.size() << endl;
+				line.erase(
+					remove_if(line.begin(), line.end(), [](char a) ->bool {return isspace(a); }),
+					line.end());
+				cout << line << endl;
+			}
 
-// 入门使用技巧: 
-//   1. 使用解决方案资源管理器窗口添加/管理文件
-//   2. 使用团队资源管理器窗口连接到源代码管理
-//   3. 使用输出窗口查看生成输出和其他消息
-//   4. 使用错误列表窗口查看错误
-//   5. 转到“项目”>“添加新项”以创建新的代码文件，或转到“项目”>“添加现有项”以将现有代码文件添加到项目
-//   6. 将来，若要再次打开此项目，请转到“文件”>“打开”>“项目”并选择 .sln 文件
+		}
+
+		this_file.close();
+	}
+}
