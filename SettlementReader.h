@@ -6,8 +6,10 @@
 #include "SpreadSheet.h"
 #include <string>
 #include <vector>
+#include <map>
 using std::string;
 using std::vector;
+using std::map;
 
 // ³É½»¼ÇÂ¼
 struct tradeRec
@@ -32,6 +34,7 @@ class SettlementReader
 public:
 	SettlementReader(int, const char **);
 	void read();
+	void prepare();
 	void write();
 
 private:
@@ -39,7 +42,8 @@ private:
 	string path_in;
 	string path_out;
 	vector<string> filelist;
-	vector<tradeRec> trade_rec;
+	vector<tradeRec> trade_rec_raw;
+	map<string, tradeRec> trade_rec_sorted;
 };
 
 #endif // !_SETTLEMENT_READER_H_
